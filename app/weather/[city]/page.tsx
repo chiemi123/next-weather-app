@@ -1,7 +1,7 @@
 // app/weather/[city]/page.tsx
-import Image from "next/image";
 import Link from "next/link";
-import { ForecastCard } from "./components/ForecastCard";
+import { CurrentWeather } from "./components/CurrentWeather";
+import { ForecastGrid } from "./components/ForecastGrid";
 
 type ForecastCondition = {
   text: string;
@@ -84,48 +84,17 @@ export default async function WeatherPage({
         ← トップに戻る
       </Link>
 
-      <section className="rounded-xl bg-white p-6 shadow-md space-y-4">
-        <h2 className="text-2xl font-bold">
-          {name}
-          {country ? `（${country}）` : ""} の天気
-        </h2>
+      <CurrentWeather
+        name={name}
+        country={country}
+        temp={temp}
+        humidity={hum}
+        wind={wind}
+        desc={desc}
+        iconUrl={iconUrl}
+      />
 
-        <div className="flex items-center gap-4">
-          {iconUrl && (
-            <Image
-              src={iconUrl}
-              alt={desc ?? "weather icon"}
-              width={64}
-              height={64}
-              className="h-16 w-16"
-            />
-          )}
-          <div>
-            <p className="text-lg font-medium">{desc}</p>
-            <p className="text-4xl font-bold">
-              {temp}
-              <span className="text-xl font-normal"> ℃</span>
-            </p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="rounded-lg bg-slate-100 p-4">
-            <p className="text-xs text-gray-500">湿度</p>
-            <p className="text-lg font-semibold">{hum} %</p>
-          </div>
-          <div className="rounded-lg bg-slate-100 p-4">
-            <p className="text-xs text-gray-500">風速</p>
-            <p className="text-lg font-semibold">{wind} km/h</p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-7 gap-4">
-          {displayDays.map((day, index) => (
-            <ForecastCard key={index} day={day} />
-          ))}
-        </div>
-      </section>
+      <ForecastGrid days={displayDays} />
     </div>
   );
 }
