@@ -1,6 +1,22 @@
 // app/weather/[city]/page.tsx
 import Image from "next/image";
 import Link from "next/link";
+import { ForecastCard } from "./components/ForecastCard";
+
+type ForecastCondition = {
+  text: string;
+  icon: string;
+};
+
+type ForecastDay = {
+  date: string;
+  day: {
+    avgtemp_c: number;
+    mintemp_c: number;
+    maxtemp_c: number;
+    condition: ForecastCondition;
+  };
+};
 
 type WeatherApiResponse = {
   location?: { name?: string; country?: string };
@@ -9,6 +25,9 @@ type WeatherApiResponse = {
     humidity?: number;
     wind_kph?: number;
     condition?: { text?: string; icon?: string };
+  };
+  forecast?: {
+    forecastday?: ForecastDay[];
   };
 };
 
@@ -49,6 +68,12 @@ export default async function WeatherPage({
   const desc = data.current?.condition?.text ?? "-";
   const icon = data.current?.condition?.icon;
   const iconUrl = icon?.startsWith("//") ? `https:${icon}` : icon;
+
+  const forecastDays = data.forecast?.forecastday ?? [];
+
+  const displayDays = Array.from({ length: 7 }, (_, index) => {
+    return forecastDays[index] ?? null;
+  });
 
   return (
     <div className="space-y-4">
@@ -93,6 +118,12 @@ export default async function WeatherPage({
             <p className="text-xs text-gray-500">風速</p>
             <p className="text-lg font-semibold">{wind} km/h</p>
           </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-7 gap-4">
+          {displayDays.map((day, index) => (
+            <ForecastCard key={index} day={day} />
+          ))}
         </div>
       </section>
     </div>
