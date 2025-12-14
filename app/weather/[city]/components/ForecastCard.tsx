@@ -19,6 +19,18 @@ type Props = {
   day: ForecastDay | null;
 };
 
+function formatDate(dateString: string) {
+  const date = new Date(dateString);
+
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+
+  const weekDays = ["日","月","火","水","木","金","土"];
+  const weekDay =weekDays[date.getDay()];
+
+  return `${month}/${day} （${weekDay}）`;
+}
+
 export function ForecastCard({ day }: Props) {
   if (!day) {
     return (
@@ -35,7 +47,7 @@ export function ForecastCard({ day }: Props) {
 
   return (
     <div className="rounded-lg bg-white p-4 shadow text-center space-y-1">
-      <p className="text-sm font-medium">{day.date}</p>
+      <p className="text-sm font-medium">{formatDate(day.date)}</p>
 
       <Image
         src={iconUrl}
