@@ -25,8 +25,8 @@ function formatDate(dateString: string) {
   const month = date.getMonth() + 1;
   const day = date.getDate();
 
-  const weekDays = ["日","月","火","水","木","金","土"];
-  const weekDay =weekDays[date.getDay()];
+  const weekDays = ["日", "月", "火", "水", "木", "金", "土"];
+  const weekDay = weekDays[date.getDay()];
 
   return `${month}/${day} （${weekDay}）`;
 }
