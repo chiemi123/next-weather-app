@@ -7,30 +7,39 @@ export async function GET(req: Request) {
   const apiKey = process.env.WEATHER_API_KEY;
 
   if (!city) {
-    return NextResponse.json({ error: "city is required" }, { status: 400 });
+    return NextResponse.json(
+      { error: { message: "都市名が指定されていません", code: "CITY_REQUIRED" } },
+      { status: 400 }
+    );
   }
 
   if (!apiKey) {
     return NextResponse.json(
-      { error: "WEATHER_API_KEY is missing" },
+      {
+        error: {
+          message: "APIキーが設定されていません",
+          code: "API_KEY_MISSING",
+        },
+      },
       { status: 500 }
     );
   }
 
-  const url = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${encodeURIComponent(
+  const url = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${encodeURIComponent(
     city
-  )}&lang=ja`;
+  )}&days=7&lang=ja`;
 
   const res = await fetch(url, { cache: "no-store" });
 
   // ← ここを詳しくする
   if (!res.ok) {
-    const text = await res.text(); // WeatherAPIが返したエラー文
     return NextResponse.json(
       {
-        error: "WeatherAPI returned an error",
-        status: res.status,
-        body: text,
+        error: {
+          message: "天気情報の取得に失敗しました",
+          code: "WEATHER_API_ERROR",
+          status: res.status,
+        },
       },
       { status: res.status }
     );
