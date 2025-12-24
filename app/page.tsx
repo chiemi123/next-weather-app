@@ -1,12 +1,22 @@
 // app/page.tsx
 "use client";
 
-import { useState } from "react";
+import { getSearchHistory } from "@/app/lib/searchHistory";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function Home() {
   const [city, setCity] = useState("");
   const router = useRouter();
+  const [history, setHistory] = useState<string[]>([]);
+
+  useEffect(() => {
+    const stored = getSearchHistory();
+    if (Array.isArray(stored)) {
+      setHistory(stored);
+    }
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,6 +53,26 @@ export default function Home() {
           </button>
         </form>
       </section>
+
+      {history.length > 0 && (
+        <section className="mt-6">
+          <h2 className="text-sm font-semibold mb-2 text-gray-600">
+            最近検索した都市
+          </h2>
+          <ul className="flex flex-wrap gap-2">
+            {history.map((city) => (
+              <li key={`history-${city}`}>
+                <Link
+                  href={`/weather/${city}`}
+                  className="px-3 py-1 rounded-full bg-slate-100 text-sm hover:bg-slate-200"
+                >
+                  {city}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <section className="text-xs text-slate-500">
         ※ データ提供:{" "}
