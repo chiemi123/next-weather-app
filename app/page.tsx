@@ -1,7 +1,11 @@
 // app/page.tsx
 "use client";
 
-import { getSearchHistory, removeCity, clearSearchHistory } from "@/app/lib/searchHistory";
+import {
+  clearSearchHistory,
+  getSearchHistory,
+  removeCity,
+} from "@/app/lib/searchHistory";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -10,6 +14,7 @@ export default function Home() {
   const [city, setCity] = useState("");
   const router = useRouter();
   const [history, setHistory] = useState<string[]>([]);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
 
   useEffect(() => {
     const updateHistory = () => {
@@ -27,6 +32,19 @@ export default function Home() {
       window.removeEventListener("focus", updateHistory);
     };
   }, []);
+
+  // city 入力が変わるたびに候補一覧を更新
+  useEffect(() => {
+    if (!city.trim()) {
+      setSuggestions([]);
+      return;
+    }
+
+    const filtered = history.filter((item) =>
+      item.toLowerCase().includes(city.trim().toLowerCase())
+    );
+    setSuggestions(filtered);
+  }, [city, history]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,6 +81,22 @@ export default function Home() {
           </button>
         </form>
       </section>
+
+      {suggestions.length > 0 && (
+        <ul className="mt-2 border rounded-lg bg-white shadow-sm text-sm">
+          {suggestions.map((item) => (
+            <li
+              key={`suggestion-${item}`}
+              onClick={() =>
+                router.push(`/weather/${encodeURIComponent(item)}`)
+              }
+              className="cursor-pointer px-3 py-2 hover:bg-sky-100"
+            >
+              {item}
+            </li>
+          ))}
+        </ul>
+      )}
 
       {history.length > 0 && (
         <section className="mt-6">
