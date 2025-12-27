@@ -78,7 +78,7 @@ export default async function WeatherPage({
 
   return (
     <div className="space-y-4">
-      <SaveHistoryClient city={city} />
+      <SaveHistoryClient city={city} country={country} iconUrl={iconUrl} />
       <Link
         href="/"
         className="inline-flex items-center text-sm text-sky-600 hover:underline"

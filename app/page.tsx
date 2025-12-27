@@ -1,6 +1,7 @@
 // app/page.tsx
 "use client";
 
+import type { CityHistory } from "@/app/lib/searchHistory";
 import {
   clearSearchHistory,
   getSearchHistory,
@@ -13,8 +14,8 @@ import { useEffect, useState } from "react";
 export default function Home() {
   const [city, setCity] = useState("");
   const router = useRouter();
-  const [history, setHistory] = useState<string[]>([]);
-  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [history, setHistory] = useState<CityHistory[]>([]);
+  const [suggestions, setSuggestions] = useState<CityHistory[]>([]);
 
   useEffect(() => {
     const updateHistory = () => {
@@ -41,7 +42,7 @@ export default function Home() {
     }
 
     const filtered = history.filter((item) =>
-      item.toLowerCase().includes(city.trim().toLowerCase())
+      item.city.toLowerCase().includes(city.trim().toLowerCase())
     );
     setSuggestions(filtered);
   }, [city, history]);
@@ -86,13 +87,18 @@ export default function Home() {
         <ul className="mt-2 border rounded-lg bg-white shadow-sm text-sm">
           {suggestions.map((item) => (
             <li
-              key={`suggestion-${item}`}
+              key={`suggestion-${item.city}`}
               onClick={() =>
-                router.push(`/weather/${encodeURIComponent(item)}`)
+                router.push(`/weather/${encodeURIComponent(item.city)}`)
               }
               className="cursor-pointer px-3 py-2 hover:bg-sky-100"
             >
-              {item}
+              {item.city}
+              {item.country && (
+                <span className="ml-1 text-xs text-gray-500">
+                  ({item.country})
+                </span>
+              )}
             </li>
           ))}
         </ul>
@@ -104,18 +110,40 @@ export default function Home() {
             最近検索した都市
           </h2>
           <ul className="flex flex-wrap gap-2">
-            {history.map((city) => (
-              <li key={`history-${city}`}>
+            {history.map((item) => (
+              <li
+                key={`history-${item.city}`}
+                className="flex items-center gap-2"
+              >
                 <Link
-                  href={`/weather/${city}`}
-                  className="px-3 py-1 rounded-full bg-slate-100 text-sm hover:bg-slate-200"
+                  href={`/weather/${item.city}`}
+                  className="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 text-sm hover:bg-slate-200"
                 >
-                  {city}
+                  {/* 天気アイコンがあれば表示 */}
+                  {item.iconUrl && (
+                    <img
+                      src={item.iconUrl}
+                      alt={`${item.city} weather icon`}
+                      className="w-4 h-4"
+                    />
+                  )}
+
+                  {/* 都市名 */}
+                  <span>{item.city}</span>
+
+                  {/* 国名があれば表示 */}
+                  {item.country && (
+                    <span className="text-gray-500 text-xs">
+                      ({item.country})
+                    </span>
+                  )}
                 </Link>
                 <button
                   onClick={() => {
                     removeCity(city);
-                    setHistory((prev) => prev.filter((item) => item !== city));
+                    setHistory((prev) =>
+                      prev.filter((h) => h.city !== item.city)
+                    );
                   }}
                   className="text-slate-400 hover:text-red-500 text-sm"
                   aria-label={`${city} を履歴から削除`}

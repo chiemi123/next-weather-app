@@ -1,32 +1,43 @@
-const STORAGE_KEY = "recent_cities";
+const STORAGE_KEY = "recent_cities_v2";
 const MAX_HISTORY = 5;
 
-export function getSearchHistory(): string[] {
-    if (typeof window === "undefined") return [];
+export type CityHistory = {
+  city: string;
+  country?: string;
+  iconUrl?: string;
+};
 
-    const stored =localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) :[];
+export function getSearchHistory(): CityHistory[] {
+  if (typeof window === "undefined") return [];
+
+  const stored = localStorage.getItem(STORAGE_KEY);
+  try {
+    const parsed = stored ? JSON.parse(stored) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
 }
 
-export function saveSearchHistory(city: string) {
-    if (typeof window === "undefined") return;
+export function saveSearchHistory(entry: CityHistory) {
+  if (typeof window === "undefined") return;
 
-    const history = getSearchHistory();
-    const newHistory = [
-        city,
-        ...history.filter((item) => item !== city),
-    ].slice(0, MAX_HISTORY);
+  const history = getSearchHistory();
+  const newHistory = [
+    entry,
+    ...history.filter((item) => item.city !== entry.city),
+  ].slice(0, MAX_HISTORY);
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newHistory));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(newHistory));
 }
 
 export function removeCity(city: string) {
-    if (typeof window === "undefined") return;
+  if (typeof window === "undefined") return;
 
-    const history = getSearchHistory();
-    const newHistory = history.filter((item) => item !== city);
+  const history = getSearchHistory();
+  const newHistory = history.filter((item) => item.city !== city);
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newHistory));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(newHistory));
 }
 
 export function clearSearchHistory() {
