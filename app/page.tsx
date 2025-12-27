@@ -12,10 +12,20 @@ export default function Home() {
   const [history, setHistory] = useState<string[]>([]);
 
   useEffect(() => {
-    const stored = getSearchHistory();
-    if (Array.isArray(stored)) {
-      setHistory(stored);
-    }
+    const updateHistory = () => {
+      const stored = getSearchHistory();
+      if (Array.isArray(stored)) {
+        setHistory(stored);
+      }
+    };
+
+    // 初回 & タブに戻った時に実行
+    updateHistory();
+    window.addEventListener("focus", updateHistory);
+
+    return () => {
+      window.removeEventListener("focus", updateHistory);
+    };
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
