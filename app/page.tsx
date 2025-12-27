@@ -1,7 +1,7 @@
 // app/page.tsx
 "use client";
 
-import { getSearchHistory } from "@/app/lib/searchHistory";
+import { getSearchHistory, removeCity } from "@/app/lib/searchHistory";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -78,6 +78,16 @@ export default function Home() {
                 >
                   {city}
                 </Link>
+                <button
+                  onClick={() => {
+                    removeCity(city);
+                    setHistory((prev) => prev.filter((item) => item !== city));
+                  }}
+                  className="text-slate-400 hover:text-red-500 text-sm"
+                  aria-label={`${city} を履歴から削除`}
+                >
+                  ×
+                </button>
               </li>
             ))}
           </ul>

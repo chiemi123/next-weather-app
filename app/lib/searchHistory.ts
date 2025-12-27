@@ -19,3 +19,12 @@ export function saveSearchHistory(city: string) {
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(newHistory));
 }
+
+export function removeCity(city: string) {
+    if (typeof window === "undefined") return;
+
+    const history = getSearchHistory();
+    const newHistory = history.filter((item) => item !== city);
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(newHistory));
+}
