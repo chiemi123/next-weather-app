@@ -28,3 +28,9 @@ export function removeCity(city: string) {
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(newHistory));
 }
+
+export function clearSearchHistory() {
+  if (typeof window === "undefined") return;
+
+  localStorage.removeItem(STORAGE_KEY);
+}

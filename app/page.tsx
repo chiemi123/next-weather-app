@@ -1,7 +1,7 @@
 // app/page.tsx
 "use client";
 
-import { getSearchHistory, removeCity } from "@/app/lib/searchHistory";
+import { getSearchHistory, removeCity, clearSearchHistory } from "@/app/lib/searchHistory";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -91,6 +91,16 @@ export default function Home() {
               </li>
             ))}
           </ul>
+
+          <button
+            onClick={() => {
+              clearSearchHistory();
+              setHistory([]);
+            }}
+            className="text-xs text-red-500 underline hover:text-red-600"
+          >
+            履歴をすべて削除
+          </button>
         </section>
       )}
 
