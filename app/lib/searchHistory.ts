@@ -1,10 +1,11 @@
-const STORAGE_KEY = "recent_cities_v2";
+export const STORAGE_KEY = "recent_cities_v2";
 const MAX_HISTORY = 5;
 
 export type CityHistory = {
   city: string;
   country?: string;
   iconUrl?: string;
+  pinned?: boolean;
 };
 
 export function getSearchHistory(): CityHistory[] {
@@ -23,12 +24,27 @@ export function saveSearchHistory(entry: CityHistory) {
   if (typeof window === "undefined") return;
 
   const history = getSearchHistory();
-  const newHistory = [
-    entry,
-    ...history.filter((item) => item.city !== entry.city),
-  ].slice(0, MAX_HISTORY);
+  // entry が既にピン済みなら pinned:true を維持
+  const existing = history.find((h) => h.city === entry.city);
 
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(newHistory));
+  const newEntry = {
+    ...entry,
+    pinned: existing?.pinned ?? false, // 既存ピン状態を踏襲
+  };
+
+  // まずピン済み以外だけを抽出
+  const pinnedItems = history.filter((h) => h.pinned);
+  const notPinnedItems = history.filter(
+    (h) => !h.pinned && h.city !== entry.city
+  );
+
+  // 新しい履歴（ピン→新検索→残り）
+  const merged = [...pinnedItems, newEntry, ...notPinnedItems].slice(
+    0,
+    MAX_HISTORY
+  );
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
 }
 
 export function removeCity(city: string) {

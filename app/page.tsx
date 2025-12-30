@@ -3,9 +3,9 @@
 
 import type { CityHistory } from "@/app/lib/searchHistory";
 import {
-  clearSearchHistory,
   getSearchHistory,
   removeCity,
+  STORAGE_KEY,
 } from "@/app/lib/searchHistory";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -138,30 +138,53 @@ export default function Home() {
                     </span>
                   )}
                 </Link>
+
+                {/* ピン固定ボタン */}
                 <button
                   onClick={() => {
-                    removeCity(city);
-                    setHistory((prev) =>
-                      prev.filter((h) => h.city !== item.city)
+                    const updated = history.map((h) =>
+                      h.city === item.city ? { ...h, pinned: !h.pinned } : h
                     );
+                    const sorted = [...updated].sort((a, b) => {
+                      if (a.pinned === b.pinned) return 0;
+                      return a.pinned ? -1 : 1;
+                    });
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(sorted));
+                    setHistory(sorted);
                   }}
-                  className="text-slate-400 hover:text-red-500 text-sm"
-                  aria-label={`${city} を履歴から削除`}
+                  className="text-sm"
                 >
-                  ×
+                  {item.pinned ? "📌" : "📍"} {/* pinned時の見た目 */}
                 </button>
+
+                {/* 通常の削除ボタン（ピン固定なら非表示でもOK） */}
+                {!item.pinned && (
+                  <button
+                    onClick={() => {
+                      removeCity(item.city);
+                      setHistory((prev) =>
+                        prev.filter((h) => h.city !== item.city)
+                      );
+                    }}
+                    className="text-slate-400 hover:text-red-500 text-sm"
+                    aria-label={`${city} を履歴から削除`}
+                  >
+                    ×
+                  </button>
+                )}
               </li>
             ))}
           </ul>
 
           <button
             onClick={() => {
-              clearSearchHistory();
-              setHistory([]);
+              const filtered = history.filter((item) => item.pinned);
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+              setHistory(filtered);
             }}
             className="text-xs text-red-500 underline hover:text-red-600"
           >
-            履歴をすべて削除
+            ピン以外をすべて削除
           </button>
         </section>
       )}
