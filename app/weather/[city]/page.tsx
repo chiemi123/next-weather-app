@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { CurrentWeather } from "./components/CurrentWeather";
 import { ForecastGrid } from "./components/ForecastGrid";
+import { SaveHistoryClient } from "./components/SaveHistoryClient";
 
 type ForecastCondition = {
   text: string;
@@ -77,6 +78,7 @@ export default async function WeatherPage({
 
   return (
     <div className="space-y-4">
+      <SaveHistoryClient city={city} country={country} iconUrl={iconUrl} />
       <Link
         href="/"
         className="inline-flex items-center text-sm text-sky-600 hover:underline"

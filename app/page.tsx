@@ -1,12 +1,51 @@
 // app/page.tsx
 "use client";
 
-import { useState } from "react";
+import type { CityHistory } from "@/app/lib/searchHistory";
+import {
+  getSearchHistory,
+  removeCity,
+  STORAGE_KEY,
+} from "@/app/lib/searchHistory";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function Home() {
   const [city, setCity] = useState("");
   const router = useRouter();
+  const [history, setHistory] = useState<CityHistory[]>([]);
+  const [suggestions, setSuggestions] = useState<CityHistory[]>([]);
+
+  useEffect(() => {
+    const updateHistory = () => {
+      const stored = getSearchHistory();
+      if (Array.isArray(stored)) {
+        setHistory(stored);
+      }
+    };
+
+    // 初回 & タブに戻った時に実行
+    updateHistory();
+    window.addEventListener("focus", updateHistory);
+
+    return () => {
+      window.removeEventListener("focus", updateHistory);
+    };
+  }, []);
+
+  // city 入力が変わるたびに候補一覧を更新
+  useEffect(() => {
+    if (!city.trim()) {
+      setSuggestions([]);
+      return;
+    }
+
+    const filtered = history.filter((item) =>
+      item.city.toLowerCase().includes(city.trim().toLowerCase())
+    );
+    setSuggestions(filtered);
+  }, [city, history]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,7 +55,7 @@ export default function Home() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-4 max-w-screen-sm mx-auto">
       <section className="rounded-xl bg-white p-6 shadow-sm">
         <h2 className="mb-2 text-xl font-semibold">都市名で天気を検索</h2>
         <p className="mb-4 text-sm text-slate-600">
@@ -43,6 +82,110 @@ export default function Home() {
           </button>
         </form>
       </section>
+
+      {suggestions.length > 0 && (
+        <ul className="mt-2 border rounded-lg bg-white shadow-sm text-sm">
+          {suggestions.map((item) => (
+            <li
+              key={`suggestion-${item.city}`}
+              onClick={() =>
+                router.push(`/weather/${encodeURIComponent(item.city)}`)
+              }
+              className="cursor-pointer px-3 py-3 hover:bg-sky-100"
+            >
+              {item.city}
+              {item.country && (
+                <span className="ml-1 text-xs text-gray-500">
+                  ({item.country})
+                </span>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {history.length > 0 && (
+        <section className="mt-6">
+          <h2 className="text-sm font-semibold mb-2 text-gray-600">
+            最近検索した都市
+          </h2>
+          <ul className="flex flex-wrap gap-2 max-w-full">
+            {history.map((item) => (
+              <li
+                key={`history-${item.city}`}
+                className="flex items-center gap-2"
+              >
+                <Link
+                  href={`/weather/${item.city}`}
+                  className="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 text-sm hover:bg-slate-200"
+                >
+                  {/* 天気アイコンがあれば表示、なければデフォルトアイコンを表示 */}
+                  <img
+                    src={item.iconUrl || "/images/default-weather.svg"}
+                    alt={`${item.city} weather icon`}
+                    className="w-4 h-4"
+                  />
+
+                  {/* 都市名 */}
+                  <span>{item.city}</span>
+
+                  {/* 国名があれば表示 */}
+                  {item.country && (
+                    <span className="text-gray-500 text-xs">
+                      ({item.country})
+                    </span>
+                  )}
+                </Link>
+
+                {/* ピン固定ボタン */}
+                <button
+                  onClick={() => {
+                    const updated = history.map((h) =>
+                      h.city === item.city ? { ...h, pinned: !h.pinned } : h
+                    );
+                    const sorted = [...updated].sort((a, b) => {
+                      if (a.pinned === b.pinned) return 0;
+                      return a.pinned ? -1 : 1;
+                    });
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(sorted));
+                    setHistory(sorted);
+                  }}
+                  className="text-sm p-2 min-w-[36px] min-h-[36px]"
+                >
+                  {item.pinned ? "📌" : "📍"} {/* pinned時の見た目 */}
+                </button>
+
+                {/* 通常の削除ボタン（ピン固定なら非表示でもOK） */}
+                {!item.pinned && (
+                  <button
+                    onClick={() => {
+                      removeCity(item.city);
+                      setHistory((prev) =>
+                        prev.filter((h) => h.city !== item.city)
+                      );
+                    }}
+                    className="text-slate-400 hover:text-red-500 text-sm p-2 min-w-[36px] min-h-[36px]"
+                    aria-label={`${city} を履歴から削除`}
+                  >
+                    ×
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
+
+          <button
+            onClick={() => {
+              const filtered = history.filter((item) => item.pinned);
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+              setHistory(filtered);
+            }}
+            className="text-xs text-red-500 underline hover:text-red-600"
+          >
+            ピン以外をすべて削除
+          </button>
+        </section>
+      )}
 
       <section className="text-xs text-slate-500">
         ※ データ提供:{" "}
