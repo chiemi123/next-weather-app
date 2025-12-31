@@ -19,12 +19,21 @@ Next.js（App Router）を利用し、
 
 - **v1.0.0**：今日の天気検索機能まで実装済み（完成版）
 - **v1.1.0**：週間天気（7 日枠表示）を追加
+- **v2.0.0**：検索履歴機能（最大5件・オートコンプリート・ピン固定・デフォルトアイコン・モバイル対応）を追加
 
 ---
 
 ## 📸 スクリーンショット
 
-※ここにアプリの画像貼り付け予定
+### 🔍 トップページ（検索フォーム）
+
+![トップページ](./images/top.png)
+
+---
+
+### 🌦 天気詳細ページ（今日 & 週間天気）
+
+![天気ページ](./images/weather.png)
 
 ---
 
@@ -38,7 +47,7 @@ Next.js（App Router）を利用し、
 | API            | WeatherAPI（外部 API）                              |
 | サーバー処理   | Next.js Route Handler（`app/api/weather/route.ts`） |
 | データ取得     | SSR（毎回最新の天気を取得）                         |
-| デプロイ       | Vercel（推奨）                                      |
+| ストレージ       | localStorage（検索履歴保管）                         |
 
 ---
 
@@ -50,6 +59,10 @@ Next.js（App Router）を利用し、
 - 🧭 動的ルーティング `/weather/[city]`
 - 🔁 SSR による最新データ取得
 - 📱 レスポンシブ対応（スマホ / PC）
+- 💾 検索履歴の保存（最大5件）
+- 🔍 オートコンプリート検索候補（履歴ベース）
+- 📌 ピン固定機能（よく使う都市を常に先頭に表示）
+- 🖼  天気アイコン未取得時はデフォルトアイコン表示
 
 ---
 
@@ -67,11 +80,11 @@ Next.js（App Router）を利用し、
 - 取得できない日（4〜7 日目）：「未取得」として表示
 
 ### この設計のメリット
+
 - UI レイアウトが常に安定
 - 将来、有料プランに切り替えても UI を変更せず拡張可能
 
 ---
-
 
 ## 🛠 エラーハンドリング
 
@@ -99,13 +112,15 @@ app
 │ ├─ page.tsx # 天気詳細ページ（司令塔）
 │ ├─ error.tsx # 天気ページ用エラー画面
 | |_ loading.tsx # 天気ページ用ロード画面
-│ └─ components # 天気ページ専用コンポーネント
+│ /components # 天気ページ専用コンポーネント
 │ ├─ CurrentWeather.tsx # 今日の天気表示
 │ ├─ ForecastGrid.tsx # 週間天気の一覧表示（7 日分）
 │ └─ ForecastCard.tsx # 1 日分の天気カード
-└─ api
-└─ weather
-└─ route.ts # 天気 API 取得（Route Handler）
+├─ api
+│ └─ weather/route.ts # Route Handler
+public
+└─ images
+└─ default-weather.svg # デフォルト天気アイコン
 
 ## 🔧 セットアップ
 
@@ -139,33 +154,23 @@ http://localhost:3000
 
 #### 🧪 テスト内容（実施済み）
 
-正常系：Tokyo などの都市名で検索
+- 正常系：Tokyo などの都市名で検索
 
-エラー系：存在しない都市の検索
+- エラー系：存在しない都市の検索
 
-API URL 破壊テスト（500 エラー）
+- API URL 破壊テスト（500 エラー）
 
-Route Handler 強制エラー（throw new Error）
+- Route Handler 強制エラー（throw new Error）
 
-ネットワーク断（機内モード）
+- ネットワーク断（機内モード）
 
-API キー削除時のハンドリング
+- API キー削除時のハンドリング
+
+- 検索履歴機能（履歴保存・オートコンプリート・ピン固定・削除）
 
 すべて正常に動作を確認済みです。
 
-#### 🚀 デプロイ（Vercel 推奨）
-
-1. GitHub にリポジトリを作る
-2. コードを push
-3. Vercel → New Project から GitHub をインポート
-4. 環境変数（API キー）を設定
-5. Deploy をクリック
-
-Next.js は Vercel 開発元のため、最も相性の良いデプロイ方法です。
-
 #### 📝 今後の拡張予定
-
-- 💾 検索履歴保存（LocalStorage）
 
 - 🔍 オートコンプリート検索
 
@@ -175,8 +180,7 @@ Next.js は Vercel 開発元のため、最も相性の良いデプロイ方法�
 
 #### 👤 作者
 
-- 名前：あなたの名前
+- 名前：遠藤 千恵美
 
 - GitHub：https://github.com/chiemi123/next-weather-app
 
-- ポートフォリオ URL（任意）
