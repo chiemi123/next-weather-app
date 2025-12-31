@@ -32,8 +32,8 @@ export function saveSearchHistory(entry: CityHistory) {
     pinned: existing?.pinned ?? false, // 既存ピン状態を踏襲
   };
 
-  // まずピン済み以外だけを抽出
-  const pinnedItems = history.filter((h) => h.pinned);
+  // 同じ city を pinned, notPinned 両方から除外する
+  const pinnedItems = history.filter((h) => h.pinned && h.city !== entry.city);
   const notPinnedItems = history.filter(
     (h) => !h.pinned && h.city !== entry.city
   );

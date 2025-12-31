@@ -119,14 +119,12 @@ export default function Home() {
                   href={`/weather/${item.city}`}
                   className="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 text-sm hover:bg-slate-200"
                 >
-                  {/* 天気アイコンがあれば表示 */}
-                  {item.iconUrl && (
-                    <img
-                      src={item.iconUrl}
-                      alt={`${item.city} weather icon`}
-                      className="w-4 h-4"
-                    />
-                  )}
+                  {/* 天気アイコンがあれば表示、なければデフォルトアイコンを表示 */}
+                  <img
+                    src={item.iconUrl || "/images/default-weather.svg"}
+                    alt={`${item.city} weather icon`}
+                    className="w-4 h-4"
+                  />
 
                   {/* 都市名 */}
                   <span>{item.city}</span>
