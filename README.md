@@ -104,6 +104,8 @@ Next.js の **error.tsx / loading.tsx** を活用し、
 
 ## 🏗️ ディレクトリ構造
 
+```
+
 app
 ├─ page.tsx
 ├─ layout.tsx
@@ -125,6 +127,8 @@ public
 images
 ├─ images.top.png
 └─ images.weather.png
+
+```
 
 ## 🔧 セットアップ
 
