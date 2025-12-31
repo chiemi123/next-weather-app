@@ -55,7 +55,7 @@ export default function Home() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-4 max-w-screen-sm mx-auto">
       <section className="rounded-xl bg-white p-6 shadow-sm">
         <h2 className="mb-2 text-xl font-semibold">都市名で天気を検索</h2>
         <p className="mb-4 text-sm text-slate-600">
@@ -91,7 +91,7 @@ export default function Home() {
               onClick={() =>
                 router.push(`/weather/${encodeURIComponent(item.city)}`)
               }
-              className="cursor-pointer px-3 py-2 hover:bg-sky-100"
+              className="cursor-pointer px-3 py-3 hover:bg-sky-100"
             >
               {item.city}
               {item.country && (
@@ -109,7 +109,7 @@ export default function Home() {
           <h2 className="text-sm font-semibold mb-2 text-gray-600">
             最近検索した都市
           </h2>
-          <ul className="flex flex-wrap gap-2">
+          <ul className="flex flex-wrap gap-2 max-w-full">
             {history.map((item) => (
               <li
                 key={`history-${item.city}`}
@@ -150,7 +150,7 @@ export default function Home() {
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(sorted));
                     setHistory(sorted);
                   }}
-                  className="text-sm"
+                  className="text-sm p-2 min-w-[36px] min-h-[36px]"
                 >
                   {item.pinned ? "📌" : "📍"} {/* pinned時の見た目 */}
                 </button>
@@ -164,7 +164,7 @@ export default function Home() {
                         prev.filter((h) => h.city !== item.city)
                       );
                     }}
-                    className="text-slate-400 hover:text-red-500 text-sm"
+                    className="text-slate-400 hover:text-red-500 text-sm p-2 min-w-[36px] min-h-[36px]"
                     aria-label={`${city} を履歴から削除`}
                   >
                     ×
